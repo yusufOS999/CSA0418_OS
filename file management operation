@@ -1,0 +1,38 @@
+#include <stdio.h>
+#include <stdlib.h>
+int main() {
+    FILE *fp;
+    char data[100];
+    fp = fopen("filedemo.txt", "w");
+    if (fp == NULL) {
+        printf("Error creating file.\n");
+        return 1;
+    }
+    fprintf(fp, "This is a sample file.\n");
+    fclose(fp);
+    printf("File created and data written successfully.\n");
+    fp = fopen("filedemo.txt", "a");
+    if (fp == NULL) {
+        printf("Error opening file for appending.\n");
+        return 1;
+    }
+    fprintf(fp, "Appending new line to file.\n");
+    fclose(fp);
+    printf("Data appended successfully.\n");
+    fp = fopen("filedemo.txt", "r");
+    if (fp == NULL) {
+        printf("Error opening file for reading.\n");
+        return 1;
+    }
+    printf("\nFile contents:\n");
+    while (fgets(data, sizeof(data), fp)) {
+        printf("%s", data);
+    }
+    fclose(fp);
+    if (remove("filedemo.txt") == 0) {
+        printf("\n\nFile deleted successfully.\n");
+    } else {
+        printf("\n\nError deleting file.\n");
+    }
+    return 0;
+}
