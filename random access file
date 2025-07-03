@@ -1,0 +1,93 @@
+#include <stdio.h>
+#include <string.h>
+struct Employee {
+    int id;
+    char name[50];
+    float salary;
+    int isDeleted;
+};
+void addEmployee(FILE *fp) {
+    struct Employee e;
+    printf("Enter ID, Name, Salary: ");
+    scanf("%d %s %f", &e.id, e.name, &e.salary);
+    e.isDeleted = 0;
+    fseek(fp, (e.id - 1) * sizeof(struct Employee), SEEK_SET);
+    fwrite(&e, sizeof(struct Employee), 1, fp);
+    printf("Record added.\n");
+}
+void displayAll(FILE *fp) {
+    struct Employee e;
+    rewind(fp);
+    printf("\nID\tName\tSalary\n");
+    while (fread(&e, sizeof(struct Employee), 1, fp)) {
+        if (!e.isDeleted)
+            printf("%d\t%s\t%.2f\n", e.id, e.name, e.salary);
+    }
+}
+
+void searchEmployee(FILE *fp) {
+    int id;
+    printf("Enter ID to search: ");
+    scanf("%d", &id);
+    struct Employee e;
+    fseek(fp, (id - 1) * sizeof(struct Employee), SEEK_SET);
+    if (fread(&e, sizeof(struct Employee), 1, fp)) {
+        if (!e.isDeleted)
+            printf("ID: %d, Name: %s, Salary: %.2f\n", e.id, e.name, e.salary);
+        else
+            printf("Record is deleted.\n");
+    } else {
+        printf("Record not found.\n");
+    }
+}
+void modifyEmployee(FILE *fp) {
+    int id;
+    printf("Enter ID to modify: ");
+    scanf("%d", &id);
+    struct Employee e;
+    fseek(fp, (id - 1) * sizeof(struct Employee), SEEK_SET);
+    if (fread(&e, sizeof(struct Employee), 1, fp) && !e.isDeleted) {
+        printf("Enter new name and salary: ");
+        scanf("%s %f", e.name, &e.salary);
+        fseek(fp, (id - 1) * sizeof(struct Employee), SEEK_SET);
+        fwrite(&e, sizeof(struct Employee), 1, fp);
+        printf("Record updated.\n");
+    } else {
+        printf("Record not found or deleted.\n");
+    }
+}
+void deleteEmployee(FILE *fp) {
+    int id;
+    printf("Enter ID to delete: ");
+    scanf("%d", &id);
+    struct Employee e;
+    fseek(fp, (id - 1) * sizeof(struct Employee), SEEK_SET);
+    if (fread(&e, sizeof(struct Employee), 1, fp) && !e.isDeleted) {
+        e.isDeleted = 1;
+        fseek(fp, (id - 1) * sizeof(struct Employee), SEEK_SET);
+        fwrite(&e, sizeof(struct Employee), 1, fp);
+        printf("Record marked as deleted.\n");
+    } else {
+        printf("Record not found or already deleted.\n");
+    }
+}
+
+int main() {
+    FILE *fp = fopen("employees.dat", "rb+");
+    if (fp == NULL)
+        fp = fopen("employees.dat", "wb+");
+    int choice;
+    while (1) {
+        printf("\n1. Add Employee\n2. Display All\n3. Search Employee\n4. Modify Employee\n5. Delete Employee\n6. Exit\nEnter choice: ");
+        scanf("%d", &choice);
+        switch (choice) {
+            case 1: addEmployee(fp); break;
+            case 2: displayAll(fp); break;
+            case 3: searchEmployee(fp); break;
+            case 4: modifyEmployee(fp); break;
+            case 5: deleteEmployee(fp); break;
+            case 6: fclose(fp); return 0;
+            default: printf("Invalid choice.\n");
+        }
+    }
+}
