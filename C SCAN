@@ -1,0 +1,57 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+void sort(int a[], int n) {
+    int i, j, temp;
+    for (i = 0; i < n - 1; i++)
+        for (j = 0; j < n - i - 1; j++)
+            if (a[j] > a[j + 1]) {
+                temp = a[j];
+                a[j] = a[j + 1];
+                a[j + 1] = temp;
+            }
+}
+
+int main() {
+    int i, j, n, head, disk_size;
+    printf("Enter number of requests: ");
+    scanf("%d", &n);
+
+    int req[n];
+    printf("Enter request sequence:\n");
+    for (i = 0; i < n; i++)
+        scanf("%d", &req[i]);
+
+    printf("Enter initial head position: ");
+    scanf("%d", &head);
+
+    printf("Enter disk size (e.g., 200): ");
+    scanf("%d", &disk_size);
+
+    int total = 0, idx = 0;
+    int sequence[n + 2];
+
+    sort(req, n);
+
+    for (i = 0; i < n; i++)
+        if (req[i] >= head)
+            break;
+
+    for (j = i; j < n; j++)
+        sequence[idx++] = req[j];
+    sequence[idx++] = disk_size - 1;
+    sequence[idx++] = 0;
+    for (j = 0; j < i; j++)
+        sequence[idx++] = req[j];
+
+    printf("\nC-SCAN Disk Scheduling Order:\n");
+    printf("%d", head);
+    for (i = 0; i < idx; i++) {
+        printf(" -> %d", sequence[i]);
+        total += abs(head - sequence[i]);
+        head = sequence[i];
+    }
+
+    printf("\nTotal head movement: %d\n", total);
+    return 0;
+}
