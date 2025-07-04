@@ -1,0 +1,50 @@
+#include <stdio.h>
+#define MAX_BLOCKS 100
+#define MAX_FILES 10
+int main() {
+    int disk[MAX_BLOCKS] = {0}; // 0 = free, 1 = allocated
+    int startBlock[MAX_FILES], fileLength[MAX_FILES];
+    int fileCount, i, j, k, allocPossible;
+
+    printf("Enter the number of files: ");
+    scanf("%d", &fileCount);
+
+    for (i = 0; i < fileCount; i++) {
+        printf("\nEnter starting block and length of file %d: ", i + 1);
+        scanf("%d %d", &startBlock[i], &fileLength[i]);
+
+        if (startBlock[i] < 0 || startBlock[i] + fileLength[i] > MAX_BLOCKS) {
+            printf("❌ Invalid block range. Try again.\n");
+            i--;
+            continue;
+        }
+
+        allocPossible = 1;
+        for (j = startBlock[i]; j < startBlock[i] + fileLength[i]; j++) {
+            if (disk[j] == 1) {
+                allocPossible = 0;
+                break;
+            }
+        }
+
+        if (allocPossible) {
+            for (j = startBlock[i]; j < startBlock[i] + fileLength[i]; j++) {
+                disk[j] = 1;
+            }
+            printf("✅ File %d allocated from block %d to %d\n", i + 1, startBlock[i], startBlock[i] + fileLength[i] - 1);
+        } else {
+            printf("❌ Cannot allocate file %d. Blocks not free.\n", i + 1);
+            i--;
+        }
+    }
+    printf("\n\nFile\tStart\tLength\tBlocks Allocated\n");
+    for (i = 0; i < fileCount; i++) {
+        printf("%d\t%d\t%d\t", i + 1, startBlock[i], fileLength[i]);
+        for (j = startBlock[i]; j < startBlock[i] + fileLength[i]; j++) {
+            printf("%d ", j);
+        }
+        printf("\n");
+    }
+
+    return 0;
+}
